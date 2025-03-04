@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do list</title>
+    <script>
+        const item_el = new DOMParser().parseFromString(`
+            <div class="row">
+                <h1 class="button" onclick="removeRow(this)">-</h1>
+                <h1 class="detail" contenteditable="true" placeholder="I need to ..." oninput="updateOnEdit()"></h1>
+                <h1 class="button" onclick="removeRow(this)">-</h1>
+            </div>
+        `, 'text/html').documentElement.querySelector('div');
+
+        function addRow() {
+            document.getElementById('items').prepend(item_el.cloneNode(true));
+        }
+
+        function removeRow(el) {
+            el.parentElement.remove();
+            saveItems();
+        }
+
+        function updateOnEdit(el) {
+            saveItems();
+        }
+
+        function saveItems() {
+            localStorage.setItem('andbeav-to-do-list', document.getElementById('items').innerHTML);
+        }
+
+        function loadItems() {
+            document.getElementById('items').innerHTML = localStorage.getItem('andbeav-to-do-list');
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        body>div {
+            max-width: 50%;
+            min-height: 100vh;
+            margin: 0 auto;
+
+            background-color: lightgray;
+        }
+
+        @media only screen and (max-width: 900px) {
+            body>div {
+                max-width: 900px;
+            }
+        }
+
+        h1 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+        }
+
+        .row {
+            padding-top: 10px;
+            display: flex;
+        }
+
+        .row>* {
+            background-color: white;
+            padding: 20px;
+            border-radius: 25px;
+        }
+
+        .button {
+            margin: 0 10px 0 10px;
+            width: 50px;
+        }
+
+        .button:hover {
+            cursor: pointer;
+        }
+
+        .detail {
+            width: 100%;
+            text-align: center;
+            font-size: xx-large;
+            overflow-x: hidden;
+        }
+
+        .detail br {
+            display: none;
+        }
+
+        [placeholder]:empty::before {
+            content: attr(placeholder);
+            opacity: 50%;
+        }
+
+        [placeholder]:empty:focus::after {
+            opacity: 100%;
+        }
+    </style>
+</head>
+
+<body onload="loadItems()">
+    <div>
+        <div class="row">
+            <h1 class="button" onclick="addRow()">+</h1>
+            <h1 class="detail">&lt; Add an item &gt;</h1>
+            <h1 class="button" onclick="addRow()">+</h1>
+        </div>
+        <div id="items"></div>
+    </div>
+</body>
+
+</html>
