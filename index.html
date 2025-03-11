@@ -9,7 +9,7 @@
         const item_el = new DOMParser().parseFromString(`
             <div class="row">
                 <h1 class="button" onclick="removeRow(this)">-</h1>
-                <h1 class="detail" contenteditable="true" placeholder="I need to ..." oninput="updateOnEdit()"></h1>
+                <h1 class="detail" contenteditable="true" placeholder="I need to ..." oninput="updateOnEdit(this)"></h1>
                 <h1 class="button" onclick="removeRow(this)">-</h1>
             </div>
         `, 'text/html').documentElement.querySelector('div');
@@ -24,6 +24,19 @@
         }
 
         function updateOnEdit(el) {
+            // Remove elements added with Enter or Shift+Enter
+            let lastChildTagName = el.lastChild.tagName.toLowerCase()
+            if (['div', 'br'].includes(lastChildTagName)) {
+                el.lastChild.remove();
+                // If Shift+Enter was used, the additional <br> tag should be removed
+                if (lastChildTagName === 'br') { el.lastChild.remove(); }
+
+                // Remove focus and border highlight
+                el.blur();
+                window.getSelection().removeAllRanges();
+            }
+
+            // Save the content on edit
             saveItems();
         }
 
@@ -44,6 +57,8 @@
         body>div {
             max-width: 50%;
             min-height: 100vh;
+            width: auto;
+            height: auto;
             margin: 0 auto;
 
             background-color: lightgray;
@@ -90,10 +105,6 @@
             overflow-x: hidden;
         }
 
-        .detail br {
-            display: none;
-        }
-
         [placeholder]:empty::before {
             content: attr(placeholder);
             opacity: 50%;
@@ -101,6 +112,14 @@
 
         [placeholder]:empty:focus::after {
             opacity: 100%;
+        }
+
+        textarea {
+            height: 0;
+            padding: 0;
+            border: 0;
+            resize: none;
+            user-select: none;
         }
     </style>
 </head>
@@ -113,6 +132,11 @@
             <h1 class="button" onclick="addRow()">+</h1>
         </div>
         <div id="items"></div>
+        <!--
+            Prevent accidentally focusing the last row when clicking below it
+            by providing a closer text-node that is unselectable
+        -->
+        <textarea></textarea>
     </div>
 </body>
 
